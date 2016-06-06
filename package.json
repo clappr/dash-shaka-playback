@@ -16,7 +16,7 @@
   "license": "BSD-3-Clause",
   "dependencies": {
     "shaka-player": "1.6.4",
-    "clappr": "latest"
+    "clappr": "0.2.57"
   },
   "devDependencies": {
     "webpack": "^1.12.1",

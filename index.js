@@ -21,11 +21,11 @@ export default class DashShakaPlayback extends HTML5Video {
   }
   get currentLevel() { return this._currentLevelId || AUTO }
 
-  constructor(options) {
-    super(options)
-    this.isReadyState = false
+  constructor(_options) {
+    super(_options)
+    this._isReadyState = false
     this._levels = []
-    this.options.shaka = options.shaka || {}
+    this._options.shaka = _options.shaka || {}
 
     var checkIfIsReady = (fn) => {
       return (arg) => {
@@ -43,7 +43,7 @@ export default class DashShakaPlayback extends HTML5Video {
 
     this.getPlaybackType = checkIfIsReady(() => (this._player.isLive()?'live':'vod'))
 
-    options.autoPlay && this.play()
+    _options.autoPlay && this.play()
   }
 
   play() {
@@ -62,7 +62,7 @@ export default class DashShakaPlayback extends HTML5Video {
   // skipping ready event on video tag in favor of ready on shaka
   ready() {}
 
-  get isReady() {return this.isReadyState}
+  get isReady() {return this._isReadyState}
 
   // skipping error handling on video tag in favor of error on shaka
   error(event) { Log.error('an error was raised by the video tag', event, this.el.error)}
@@ -77,7 +77,7 @@ export default class DashShakaPlayback extends HTML5Video {
     this._player.unload().
       then(() => {
         this._player = null
-        this.isReadyState = false
+        this._isReadyState = false
       }).
       catch(() => { Log.error('shaka could not be unloaded') })
   }
@@ -97,7 +97,7 @@ export default class DashShakaPlayback extends HTML5Video {
   _setup() {
     this._player = this._createPlayer()
 
-    var playerLoaded = this._player.load(new shaka.player.DashVideoSource(this.options.src, this.options.shaka.interpretContentProtection))
+    var playerLoaded = this._player.load(new shaka.player.DashVideoSource(this._options.src, this._options.shaka.interpretContentProtection))
     playerLoaded.then(() => this._loaded())
       .catch((e) => this._setupError(e))
   }
@@ -155,7 +155,7 @@ export default class DashShakaPlayback extends HTML5Video {
 
   _destroy() {
     super.destroy()
-    this.isReadyState = false
+    this._isReadyState = false
     Log.debug('shaka was destroyed')
   }
 

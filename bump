@@ -12,9 +12,9 @@ update_version() {
 }
 
 build() {
-  echo 'building clappr.js' &&
+  echo 'building' &&
   npm run build --silent &&
-  echo 'building clappr.min.js' &&
+  echo 'building' &&
   npm run release --silent
 }
 

@@ -112,6 +112,7 @@ export default class DashShakaPlayback extends HTML5Video {
   }
 
   _loaded() {
+    this._isShakaReadyState = true
     this._ready()
     this._startToSendStats()
     this._levels = this.videoTracks().map((videoTrack) => { return {id: videoTrack.id, label: `${videoTrack.height}p`}})
@@ -160,7 +161,6 @@ export default class DashShakaPlayback extends HTML5Video {
   }
 
   _ready() {
-    this._isShakaReadyState = true
     super._ready()
   }
 }

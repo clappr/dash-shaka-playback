@@ -92,4 +92,14 @@ audioTracks()
 videoTracks()
 ```
 
+# HLS
+
+By default, HLS streams are handled by clappr. If you want that shaka handle HLS streams enable in the plugin list:
+
+```javascript
+   ...
+   plugins: [DashShakaPlayback.withHls()],
+   ...
+```
+
 # For the older versions [check](https://github.com/clappr/dash-shaka-playback/tree/releases)

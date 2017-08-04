@@ -15,7 +15,12 @@ class DashShakaPlayback extends HTML5Video {
     shaka.polyfill.installAll()
     var browserSupported = shaka.Player.isBrowserSupported()
     var resourceParts = resource.split('?')[0].match(/.*\.(.*)$/) || []
-    return browserSupported && ((resourceParts[1] === 'mpd') || mimeType.indexOf('application/dash+xml') > -1)
+    return browserSupported && ((resourceParts[1] === 'mpd') || mimeType.indexOf('application/dash+xml') > -1 ||  (DashShakaPlayback._enableHls && ((resourceParts[1] === 'm3u8') || mimeType === 'application/x-mpegURL' || mimeType === 'application/vnd.apple.mpegurl' )))
+  }
+
+  static withHls(isEnabled=true) {
+    DashShakaPlayback._enableHls = !!isEnabled
+    return DashShakaPlayback
   }
 
   get name () {

@@ -59,7 +59,7 @@ class DashShakaPlayback extends HTML5Video {
     this._levels = []
     this._pendingAdaptationEvent = false
     this._isShakaReadyState = false
-    this._activeAudioLanguage = null;
+    this._activeAudioLanguage = null
 
     options.autoPlay && this.play()
   }
@@ -295,7 +295,7 @@ class DashShakaPlayback extends HTML5Video {
     this._options.shakaOnBeforeLoad && this._options.shakaOnBeforeLoad(this._player)
 
     const preferredAudioLanguage = this._player.getConfiguration().preferredAudioLanguage
-    this._activeAudioLanguage = preferredAudioLanguage.length ? preferredAudioLanguagee : null
+    this._activeAudioLanguage = preferredAudioLanguage.length ? preferredAudioLanguage : null
 
     let playerLoaded = this._player.load(this._options.src)
     playerLoaded.then(() => this._loaded())

@@ -149,19 +149,30 @@ class DashShakaPlayback extends HTML5Video {
     return (this.isReady && this._player.isLive() ? 'live' : 'vod') || ''
   }
 
-  selectTrack (track) {
-    if (track.type === 'text') {
-        this._player.selectTextTrack(track)
-    } else if (track.type === 'variant') {
-        this._player.selectVariantTrack(track)
-        if (track.mimeType.startsWith('video/')) {
-            // we trigger the adaptation event here
-            // because Shaka doesn't trigger its event on "manual" selection.
-            this._onAdaptation()
-        }
-    } else {
-        throw new Error('Unhandled track type:', track.type);
+  selectTrack (track, clearBuffer) {
+    switch(track.type) {
+    case 'text':
+      this._player.selectTextTrack(track)
+      break
+    case 'variant':
+      this._player.selectVariantTrack(track, clearBuffer)
+      if (track.mimeType.startsWith('video/')) {
+        // we trigger the adaptation event here
+        // because Shaka doesn't trigger its event on "manual" selection.
+        this._onAdaptation()
+      }
+      break
+    default:
+      throw new Error('Unhandled track type:', track.type)
     }
+  }
+
+  selectLanguage(language, role) {
+    this._player.selectAudioLanguage(language, role)
+  }
+
+  get audioLanguages() {
+    return this._player.getAudioLanguages()
   }
 
   /**
@@ -290,7 +301,7 @@ class DashShakaPlayback extends HTML5Video {
   }
 
   _loaded () {
-    this._onShakaReady();
+    this._onShakaReady()
     this._startToSendStats()
     this._fillLevels()
     this._checkForClosedCaptions()

@@ -151,7 +151,7 @@ class DashShakaPlayback extends HTML5Video {
   }
 
   selectTrack (track, clearBuffer) {
-    if (this.isReady) {
+    if (!this.isReady) {
       return false
     }
     switch(track.type) {

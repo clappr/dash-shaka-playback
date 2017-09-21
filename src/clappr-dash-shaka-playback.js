@@ -124,6 +124,15 @@ class DashShakaPlayback extends HTML5Video {
     }
   }
 
+  /**
+  * Determine if the playback does not contain video/has video but video should be ignored.
+  * @property isAudioOnly
+  * @type Boolean
+  */
+  get isAudioOnly() {
+    return this.isReady ? this._player.isAudioOnly() : false
+  }
+
   get textTracks () {
     return this.isReady && this._player.getTextTracks()
   }

@@ -12,7 +12,8 @@
     "dist": "yarn lint && yarn build && yarn release",
     "start": "webpack-dev-server",
     "release": "webpack",
-    "lint": "eslint index.js"
+    "lint": "eslint src index.js",
+    "lint:fix": "eslint src index.js --fix"
   },
   "author": "Clappr team",
   "license": "BSD-3-Clause",

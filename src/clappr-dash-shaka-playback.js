@@ -59,6 +59,7 @@ class DashShakaPlayback extends HTML5Video {
     this._levels = []
     this._pendingAdaptationEvent = false
     this._isShakaReadyState = false
+    this._activeAudioLanguage = null;
 
     options.autoPlay && this.play()
   }
@@ -150,10 +151,13 @@ class DashShakaPlayback extends HTML5Video {
   }
 
   selectTrack (track, clearBuffer) {
+    if (this.isReady) {
+      return false
+    }
     switch(track.type) {
     case 'text':
       this._player.selectTextTrack(track)
-      break
+      return true
     case 'variant':
       this._player.selectVariantTrack(track, clearBuffer)
       if (track.mimeType.startsWith('video/')) {
@@ -161,18 +165,27 @@ class DashShakaPlayback extends HTML5Video {
         // because Shaka doesn't trigger its event on "manual" selection.
         this._onAdaptation()
       }
-      break
+      return true
     default:
       throw new Error('Unhandled track type:', track.type)
     }
   }
 
   selectLanguage(language, role) {
-    this._player.selectAudioLanguage(language, role)
+    if (this.isReady) {
+      this._activeAudioLanguage = language
+      this._player.selectAudioLanguage(language, role)
+      return true
+    }
+    return false
   }
 
   get audioLanguages() {
-    return this._player.getAudioLanguages()
+    return this.isReady && this._player.getAudioLanguages()
+  }
+
+  get activeAudioLanguage() {
+    return this._activeAudioLanguage || this.audioLanguages[0] || null
   }
 
   /**
@@ -280,6 +293,9 @@ class DashShakaPlayback extends HTML5Video {
     this._player = this._createPlayer()
     this._options.shakaConfiguration && this._player.configure(this._options.shakaConfiguration)
     this._options.shakaOnBeforeLoad && this._options.shakaOnBeforeLoad(this._player)
+
+    const preferredAudioLanguage = this._player.getConfiguration().preferredAudioLanguage
+    this._activeAudioLanguage = preferredAudioLanguage.length ? preferredAudioLanguagee : null
 
     let playerLoaded = this._player.load(this._options.src)
     playerLoaded.then(() => this._loaded())

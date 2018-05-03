@@ -59,6 +59,7 @@ class DashShakaPlayback extends HTML5Video {
     this._levels = []
     this._pendingAdaptationEvent = false
     this._isShakaReadyState = false
+    this._activeAudioLanguage = null
 
     this.options.autoPlay && this.play()
   }
@@ -124,6 +125,15 @@ class DashShakaPlayback extends HTML5Video {
     }
   }
 
+  /**
+  * Determine if the playback does not contain video/has video but video should be ignored.
+  * @property isAudioOnly
+  * @type Boolean
+  */
+  get isAudioOnly() {
+    return this.isReady ? this._player.isAudioOnly() : false
+  }
+
   get textTracks () {
     return this.isReady && this._player.getTextTracks()
   }
@@ -140,19 +150,42 @@ class DashShakaPlayback extends HTML5Video {
     return (this.isReady && this._player.isLive() ? 'live' : 'vod') || ''
   }
 
-  selectTrack (track) {
-    if (track.type === 'text') {
-        this._player.selectTextTrack(track)
-    } else if (track.type === 'variant') {
-        this._player.selectVariantTrack(track)
-        if (track.mimeType.startsWith('video/')) {
-            // we trigger the adaptation event here
-            // because Shaka doesn't trigger its event on "manual" selection.
-            this._onAdaptation()
-        }
-    } else {
-        throw new Error('Unhandled track type:', track.type);
+  selectTrack (track, clearBuffer) {
+    if (!this.isReady) {
+      return false
     }
+    switch(track.type) {
+    case 'text':
+      this._player.selectTextTrack(track)
+      return true
+    case 'variant':
+      this._player.selectVariantTrack(track, clearBuffer)
+      if (track.mimeType.startsWith('video/')) {
+        // we trigger the adaptation event here
+        // because Shaka doesn't trigger its event on "manual" selection.
+        this._onAdaptation()
+      }
+      return true
+    default:
+      throw new Error('Unhandled track type:', track.type)
+    }
+  }
+
+  selectLanguage(language, role) {
+    if (this.isReady) {
+      this._activeAudioLanguage = language
+      this._player.selectAudioLanguage(language, role)
+      return true
+    }
+    return false
+  }
+
+  get audioLanguages() {
+    return this.isReady && this._player.getAudioLanguages()
+  }
+
+  get activeAudioLanguage() {
+    return this._activeAudioLanguage || this.audioLanguages[0] || null
   }
 
   /**
@@ -262,6 +295,9 @@ class DashShakaPlayback extends HTML5Video {
     this._player = this._createPlayer()
     this._options.shakaConfiguration && this._player.configure(this._options.shakaConfiguration)
     this._options.shakaOnBeforeLoad && this._options.shakaOnBeforeLoad(this._player)
+
+    const preferredAudioLanguage = this._player.getConfiguration().preferredAudioLanguage
+    this._activeAudioLanguage = preferredAudioLanguage.length ? preferredAudioLanguage : null
 
     let playerLoaded = this._player.load(this._options.src)
     playerLoaded.then(() => this._loaded())

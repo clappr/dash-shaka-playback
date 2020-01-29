@@ -135,7 +135,10 @@ class DashShakaPlayback extends HTML5Video {
 
   play () {
     if (!this._player) {
-      this._setup()
+      // User interaction is lost when Shaka instance load() fetch the manifest
+      // Calling consent() before setup Shaka instance fix this issue (Safari browser on macOS)
+      this.consent()
+      process.nextTick(() => this._setup())
     }
 
     if (!this.isReady) {

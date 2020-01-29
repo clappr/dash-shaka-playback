@@ -73,7 +73,9 @@ class DashShakaPlayback extends HTML5Video {
   }
 
   getCurrentTime() {
-    return this.shakaPlayerInstance.getMediaElement().currentTime - this.seekRange.start
+    return this.shakaPlayerInstance
+      ? this.shakaPlayerInstance.getMediaElement().currentTime - this.seekRange.start
+      : 0
   }
 
   get _startTime() {
@@ -81,6 +83,8 @@ class DashShakaPlayback extends HTML5Video {
   }
 
   get presentationTimeline() {
+    if (!this.shakaPlayerInstance) return
+
     return this.shakaPlayerInstance.getManifest().presentationTimeline
   }
 
@@ -99,7 +103,11 @@ class DashShakaPlayback extends HTML5Video {
   }
 
   getProgramDateTime() {
-    return new Date((this.presentationTimeline.getPresentationStartTime() + this.seekRange.start) * 1000)
+    let presentationStartTime = this.presentationTimeline
+      ? this.presentationTimeline.getPresentationStartTime()
+      : null
+
+    return new Date((presentationStartTime + this.seekRange.start) * 1000)
   }
 
   _updateDvr(status) {
@@ -155,15 +163,13 @@ class DashShakaPlayback extends HTML5Video {
   // skipping HTML5Video `_setupSrc` (on tag video)
   _setupSrc () {}
 
-  // skipping ready event on video tag in favor of ready on shaka
   _ready () {
-    // override with no-op
+    this.trigger(Events.PLAYBACK_READY, this.name)
   }
 
   _onShakaReady() {
     this._isShakaReadyState = true
     this.trigger(DashShakaPlayback.Events.SHAKA_READY)
-    this.trigger(Events.PLAYBACK_READY, this.name)
   }
 
   get isReady () {

@@ -399,11 +399,46 @@ class DashShakaPlayback extends HTML5Video {
     this._checkForClosedCaptions()
   }
 
-  _fillLevels () {
-    if (this._levels.length === 0) {
-      this._levels = this.videoTracks.map((videoTrack) => { return {id: videoTrack.id, level: videoTrack, label: `${videoTrack.height}p`} }).reverse()
-      this.trigger(Events.PLAYBACK_LEVELS_AVAILABLE, this.levels)
+  _hasMultipleLanguages() {
+    let lang
+    let tracks = this.videoTracks
+
+    for (let i = 0; i < tracks.length; ++i) {
+      if (i === 0) {
+        lang = tracks[i].language
+        continue
+      }
+
+      if (lang !== tracks[i].language)
+        return true
     }
+
+    return false
+  }
+
+  _fillLevels () {
+    if (this._levels.length !== 0)
+      return
+
+    // If multiple language available, add it to label
+    let labelWithLanguage = this._hasMultipleLanguages()
+
+    this._levels = this.videoTracks.map((videoTrack) => {
+      return {
+        id: videoTrack.id,
+        level: videoTrack,
+        label: labelWithLanguage ? `${videoTrack.bandwidth/1000}Kbps - ${videoTrack.language}` : `${videoTrack.bandwidth/1000}Kbps`,
+      }
+    })
+
+    if (labelWithLanguage)
+      // Sort by language ASC, bandwidth DESC
+      this._levels.sort((a, b) => (a.level.language > b.level.language) ? 1 : (a.level.language === b.level.language) ? ((a.level.bandwidth < b.level.bandwidth) ? 1 : -1) : -1 )
+    else
+      // Sort by bandwidth DESC
+      this._levels.sort((a, b) => (a.level.bandwidth < b.level.bandwidth) ? 1 : -1)
+
+    this.trigger(Events.PLAYBACK_LEVELS_AVAILABLE, this.levels)
   }
 
   _startToSendStats () {

@@ -203,6 +203,10 @@ class DashShakaPlayback extends HTML5Video {
     return this.isReady && this._player.getTextTracks()
   }
 
+  get audioLanguages () {
+    return this.isReady && this._player.getAudioLanguages();
+  }
+
   get audioTracks () {
     return this.isReady && this._player.getVariantTracks().filter((t) => t.mimeType.startsWith('audio/'))
   }
@@ -213,6 +217,10 @@ class DashShakaPlayback extends HTML5Video {
 
   getPlaybackType () {
     return (this.isReady && this._player.isLive() ? 'live' : 'vod') || ''
+  }
+
+  selectAudioLanguage (language, role=null) {
+    this._player.selectAudioLanguage(language, role);
   }
 
   selectTrack (track) {
@@ -449,6 +457,7 @@ class DashShakaPlayback extends HTML5Video {
       bandwidth: activeVideo.bandwidth,
       width: activeVideo.width,
       height: activeVideo.height,
+      language: activeVideo.language,
       level: activeVideo.id,
       bitrate: activeVideo.videoBandwidth
     })

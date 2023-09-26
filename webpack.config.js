@@ -65,7 +65,7 @@ if (NPM_RUN === 'build' || NPM_RUN === 'start') {
   }))
 
   // Unminified bundle without shaka-player
-  let customExt = externals()
+  const customExt = externals()
   customExt['shaka-player'] = 'shaka'
   configurations.push(webpackConfig({
     filename: 'dash-shaka-playback.external.js',
@@ -95,7 +95,7 @@ if (NPM_RUN === 'release') {
   }))
 
   // Minified bundle without shaka-player
-  let customExt = externals()
+  const customExt = externals()
   customExt['shaka-player'] = 'shaka'
   configurations.push(webpackConfig({
     filename: 'dash-shaka-playback.external.min.js',

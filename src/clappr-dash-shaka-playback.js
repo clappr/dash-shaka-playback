@@ -82,7 +82,7 @@ class DashShakaPlayback extends HTML5Video {
 
   getFrameRate() {
     if (this.videoTracks && this._currentLevelId) {
-      const track = this.videoTracks.filter((t) => t.id === this._currentLevelId)[0]
+      const track = this.videoTracks.find((t) => t.id === this._currentLevelId)
       return track && track.frameRate ? track.frameRate : null
     }
     return null

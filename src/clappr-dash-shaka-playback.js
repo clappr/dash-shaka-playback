@@ -80,6 +80,14 @@ class DashShakaPlayback extends HTML5Video {
     return this._duration
   }
 
+  getFrameRate() {
+    if (this.videoTracks && this._currentLevelId) {
+      const track = this.videoTracks.filter((t) => t.id === this._currentLevelId)[0]
+      return track && track.frameRate ? track.frameRate : null
+    }
+    return null
+  }
+
   get _duration() {
     if (!this.shakaPlayerInstance) return 0
 

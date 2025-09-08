@@ -1,5 +1,5 @@
 const path = require('path')
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
+const TerserPlugin = require('terser-webpack-plugin')
 
 var NPM_RUN = process.env.npm_lifecycle_event
 
@@ -18,16 +18,16 @@ const externals = () => {
 const webpackConfig = (config) => {
   return {
     devServer: {
-      contentBase: [
-        path.resolve(__dirname, 'public'),
-      ],
-      disableHostCheck: true, // https://github.com/webpack/webpack-dev-server/issues/882
+      static: {
+        directory: path.resolve(__dirname, 'public'),
+      },
+      allowedHosts: 'all',
       compress: true,
-      host: '0.0.0.0',
-      port: 8181
-    },
+      host: 'localhost',
+      port: config.port
+    },    
     mode: config.mode,
-    devtool: 'source-maps',
+    devtool: 'eval-source-map',
     entry: path.resolve(__dirname, 'src/clappr-dash-shaka-playback.js'),
     externals: config.externals,
     module: {
@@ -42,8 +42,8 @@ const webpackConfig = (config) => {
       ],
     },
     output: {
-      path: path.resolve(__dirname, 'dist'),
-      publicPath: 'dist/',
+      path: path.resolve(__dirname, 'public/dist/'),
+      publicPath: 'public/dist/',
       filename: config.filename,
       library: 'DashShakaPlayback',
       libraryTarget: 'umd',
@@ -60,17 +60,19 @@ if (NPM_RUN === 'build' || NPM_RUN === 'start') {
     filename: 'dash-shaka-playback.js',
     plugins: [],
     externals: externals(),
-    mode: 'development'
+    mode: 'development',
+    port: '8181',
   }))
 
   // Unminified bundle without shaka-player
-  var customExt = externals()
+  const customExt = externals()
   customExt['shaka-player'] = 'shaka'
   configurations.push(webpackConfig({
     filename: 'dash-shaka-playback.external.js',
     plugins: [],
     externals: customExt,
-    mode: 'development'
+    mode: 'development',
+    port: '8182',
   }))
 }
 
@@ -79,27 +81,33 @@ if (NPM_RUN === 'release') {
   configurations.push(webpackConfig({
     filename: 'dash-shaka-playback.min.js',
     optimization: {
-      minimizer: [
-        new UglifyJsPlugin({
-          sourceMap: true
-        }),
-      ]
+      minimizer: [new TerserPlugin({ 
+        extractComments: false,
+        terserOptions: {
+          format: {
+            comments: false,
+          },
+        },
+      })],
     },
     externals: externals(),
     mode: 'production'
   }))
 
   // Minified bundle without shaka-player
-  var customExt = externals()
+  const customExt = externals()
   customExt['shaka-player'] = 'shaka'
   configurations.push(webpackConfig({
     filename: 'dash-shaka-playback.external.min.js',
     optimization: {
-      minimizer: [
-        new UglifyJsPlugin({
-          sourceMap: true
-        }),
-      ]
+      minimizer: [new TerserPlugin({ 
+        extractComments: false,
+        terserOptions: {
+          format: {
+            comments: false,
+          },
+        },
+      })],
     },
     externals: customExt,
     mode: 'production'

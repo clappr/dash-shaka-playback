@@ -1,3 +1,6 @@
+# This project was moved to de Clappr Monorepo
+[clappr monorepo](https://github.com/clappr/clappr)
+
 [![npm version](https://badge.fury.io/js/dash-shaka-playback.svg)](https://badge.fury.io/js/dash-shaka-playback)
 [![license](https://img.shields.io/badge/license-BSD--3--Clause-blue.svg)](https://img.shields.io/badge/license-BSD--3--Clause-blue.svg)
 
